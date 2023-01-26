@@ -69,7 +69,38 @@ class PeopleController extends Controller
             'email'=>'required',
             'password'=>'required'
         ]);
-        
+        $persona = Persona::where("email", "=", $request->email)->first();
+        if (isset($persona->id)) {
+            $empleado = Empleado::where("id_personas", "personas_id");
+            if (isset($empleado->id)) {
+                if (Hash::check($request->password, $empleado->password)) {
+                    $token = $empleado->createToken("auth_token")->plainTextToken;
+                    response()->jason([
+                        "access_token" => $token
+                    ]);
+                } else {
+                    response()->json([
+                        "status" => 33,
+                        "menssage" => "Incorrect password"
+                    ]);
+                }
+            } else {
+                response()->json([
+                    "status"=>0,
+                    "message"=>"the employee does not exist"
+                ]);
+            }
+        } else {
+            response()->json([
+                "status"=>0,
+                "menssage"=>"the employee does not exist"
+            ]);
+        }
+    }
+
+    public function logout()
+    {
+        auth()->empleado()->tokens()->delete();
     }
 
     
